@@ -8,7 +8,13 @@ export default {
     default: "arcade",
     arcade: {
       gravity: { y: 100 },
-      debug: false,
+      debug: true,
+      debugShowBody: true,
+      debugShowStaticBody: true,
+      debugShowVelocity: true,
+      debugVelocityColor: 0xffff00,
+      debugBodyColor: 0x0000ff,
+      debugStaticBodyColor: 0xffffff,
     },
   },
   scale: {

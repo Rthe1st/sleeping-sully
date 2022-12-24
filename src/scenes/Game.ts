@@ -37,10 +37,8 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
   }
 
   fire(x, y, angle) {
-    this.body.reset(x, y);
+    this.enableBody(true, x, y, true, true);
     this.setBounce(1);
-    this.setActive(true);
-    this.setVisible(true);
     this.setMass(100);
     this.scene.physics.velocityFromRotation(angle, 500, this.body.velocity);
   }
@@ -78,7 +76,7 @@ class Bullets extends Phaser.Physics.Arcade.Group {
 
 class Jack extends Phaser.Physics.Arcade.Sprite {
   constructor(scene: Scene, x, y) {
-    super(scene, x, y, "jack");
+    super(scene, x, y, "sleeping_jack");
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setVisible(true);
@@ -106,6 +104,57 @@ class Mia extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
+  }
+}
+
+class Explosion extends Phaser.Physics.Arcade.Sprite {
+  s;
+  constructor(scene, x, y) {
+    super(scene, x, y, "explosion_img");
+    this.s = this.scene.sound.add("explosion_sound", {
+      volume: 0.3,
+    });
+  }
+
+  go(x, y) {
+    const e = this;
+    this.enableBody(true, x, y, true, true);
+    this.body.allowGravity = false;
+    this.setActive(true);
+    this.setVisible(true);
+    this.anims.play("explode");
+
+    this.s.on("complete", function (sound) {
+      e.disableBody(true, true);
+    });
+    this.s.play({ loop: false });
+  }
+
+  preUpdate(time, delta) {
+    super.preUpdate(time, delta);
+  }
+}
+
+class Explosions extends Phaser.Physics.Arcade.Group {
+  constructor(scene: Scene) {
+    super(scene.physics.world, scene);
+    this.createMultiple([
+      {
+        frameQuantity: 10,
+        // texture is really set by the srpite
+        key: "explosion_img",
+        active: false,
+        visible: false,
+        classType: Explosion,
+      },
+    ]);
+  }
+
+  go(x, y) {
+    let bullet = this.getFirstDead(false);
+    if (bullet) {
+      bullet.go(x, y);
+    }
   }
 }
 
@@ -141,10 +190,12 @@ class BadGuy extends Phaser.Physics.Arcade.Sprite {
   }
 
   attack(x, y) {
-    this.body.reset(x, y);
+    this.enableBody(true, x, y, true, true);
+    // badguy.enableBody();
+    // this.body.reset(x, y);
     this.body.setCircle(this.frame.width / 2);
-    this.setActive(true);
-    this.setVisible(true);
+    // this.setActive(true);
+    // this.setVisible(true);
     this.setMass(30);
     this.setAngularVelocity(100);
     this.setVelocityX(200);
@@ -249,6 +300,7 @@ export default class Demo extends Phaser.Scene {
   text: Phaser.GameObjects.Text | null;
   mias;
   music;
+  explosions;
 
   constructor() {
     super("GameScene");
@@ -258,19 +310,41 @@ export default class Demo extends Phaser.Scene {
     this.load.image("annie", "assets/annie.png");
     this.load.image("charlotte", "assets/charlotte.png");
     this.load.image("jack", "assets/jack.png");
+    this.load.image("sleeping_jack", "assets/sleeping_jack.png");
     this.load.image("laura", "assets/laura_medium.png");
     this.load.image("mia", "assets/mia.png");
     this.load.image("mike", "assets/mike.png");
     this.load.image("trisha", "assets/trisha.png");
     this.load.image("bullet", "assets/bullet.png");
     this.load.image("open_mouth", "assets/jack_open_mouth.png");
+    this.load.image("sleepy_z", "assets/sleepy_z.png");
     this.load.audio("mia_scream", ["assets/mia_scream.ogg"]);
+    this.load.audio("snore", ["assets/snoring.mp3"]);
+    this.load.spritesheet("explosion_img", "assets/explosion.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.audio("explosion_sound", ["assets/explosion.mp3"]);
   }
 
   create() {
+    this.anims.create({
+      key: "explode",
+      frames: this.anims.generateFrameNumbers("explosion_img", {
+        start: 0,
+        end: 23,
+        first: 23,
+      }),
+      frameRate: 20,
+    });
     drawFLoor(this, 800);
     this.button = addButton(this);
-    const jack = new Jack(this, 700, 500);
+    const jack = new Jack(this, 800, 500).setScale(0.5).setOrigin(0, 0);
+    jack.refreshBody();
+    jack.setPosition(800 - jack.body.width - 10, 600 - jack.body.height - 20);
+    this.add
+      .image(jack.x + jack.width / 2, jack.y - 20, "sleepy_z")
+      .setDisplaySize(50, 50);
     const sc = this;
     this.text = this.add.text(10, 10, "", { font: "50px Courier" });
     this.text.setText(["Sleepy Sully", "Don't let his", "family wake him"]);
@@ -301,21 +375,63 @@ export default class Demo extends Phaser.Scene {
       .refreshBody();
 
     this.music = this.sound.add("mia_scream");
+    const snore = this.sound.add("snore");
+
+    snore.on("complete", function (sound) {
+      console.log("complete");
+      setTimeout(
+        function () {
+          console.log("replay");
+          sound.play();
+        }.bind(sound),
+        10
+      );
+    });
+
+    snore.play();
+
     this.mias = new Mias(this, this.music);
+    this.explosions = new Explosions(this);
 
     this.badguys = new BadGuys(this);
 
-    this.physics.add.collider(this.badguys, bullets, function (badguy, bullet) {
-      badguy.setActive(false);
+    this.physics.add.overlap(this.badguys, bullets, function (badguy, bullet) {
+      if (!badguy.active || !bullet.active) {
+        return;
+      }
+      // badguy.setActive(false);
+      // bullet.setActive(false);
+      bullet.disableBody(true, true);
+      badguy.disableBody(true, true);
+      sc.explosions.go(
+        badguy.body.x + badguy.body.radius,
+        badguy.body.y + badguy.body.radius
+      );
+      // badguy.body.reset(-1000, 0);
+      // bullet.body.reset(-1000, 0);
+    });
+
+    this.physics.add.overlap(this.mias, bullets, function (mia, bullet) {
+      if (!mia.active || !bullet.active) {
+        return;
+      }
+      mia.setActive(false);
       bullet.setActive(false);
-      badguy.body.reset(-1000, -1000);
-      bullet.body.reset(-1000, -2000);
+      sc.explosions.go(
+        mia.body.x + mia.body.radius,
+        mia.body.y + mia.body.radius
+      );
+      mia.body.reset(-1000, 0);
+      bullet.body.reset(-1000, 0);
     });
 
     this.physics.add.collider(this.badguys, floor);
     this.physics.add.collider(this.mias, floor);
 
-    this.physics.add.collider(this.mias, jack, function (jack, mia) {
+    this.physics.add.overlap(this.mias, jack, function (jack, mia) {
+      if (!mia.active || !jack.active) {
+        return;
+      }
       mia.setActive(false);
       mia.body.reset(-1000, -1000);
       let lives = sc.data.get("lives");
@@ -328,10 +444,14 @@ export default class Demo extends Phaser.Scene {
         sc.mode = "menu";
         sc.text.setText(["Sleepy Sully", "Don't let his", "family wake him"]);
         sc.button?.setVisible(true);
+        snore.stop();
       }
     });
 
-    this.physics.add.collider(this.badguys, jack, function (jack, badguy) {
+    this.physics.add.overlap(this.badguys, jack, function (jack, badguy) {
+      if (!badguy.active || !jack.active) {
+        return;
+      }
       badguy.setActive(false);
       badguy.body.reset(-1000, -1000);
       let lives = sc.data.get("lives");
@@ -344,6 +464,7 @@ export default class Demo extends Phaser.Scene {
         sc.mode = "menu";
         sc.text.setText(["Sleepy Sully", "Don't let his", "family wake him"]);
         sc.button?.setVisible(true);
+        snore.stop();
       }
     });
   }
