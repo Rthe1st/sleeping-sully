@@ -45,7 +45,12 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
-    if (this.x < 0 || this.y < 0 || this.x > 800 || this.y > 600) {
+    if (
+      this.x < 0 ||
+      this.y < 0 ||
+      this.x > this.scene.GAME_WIDTH ||
+      this.y > this.scene.GAME_HEIGHT
+    ) {
       this.setActive(false);
       this.setVisible(false);
     }
@@ -294,8 +299,8 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
 }
 
 export default class Demo extends Phaser.Scene {
-  GAME_WIDTH = 800;
-  GAME_HEIGHT = 600;
+  GAME_WIDTH = 1920;
+  GAME_HEIGHT = 1080;
 
   badguys?: BadGuys;
   button: Phaser.GameObjects.Text | null;
@@ -345,9 +350,13 @@ export default class Demo extends Phaser.Scene {
       this.play();
     });
     this.sleepingJackImage = this.add
-      .image(83, 384, "sleeping_jack")
+      .image(this.GAME_WIDTH / 2 - 103, this.GAME_HEIGHT - 97, "sleeping_jack")
       .setScale(1 / 0.5)
       .setOrigin(0, 0);
+    this.sleepingJackImage.setPosition(
+      this.GAME_WIDTH / 2 - 150 - this.sleepingJackImage.width / 2,
+      this.GAME_HEIGHT - 150 - this.sleepingJackImage.height / 2
+    );
     this.big_zs = this.add
       .image(this.GAME_WIDTH / 2 + 250, this.GAME_HEIGHT - 250, "sleepy_z")
       .setDisplaySize(100, 100)
@@ -367,13 +376,9 @@ export default class Demo extends Phaser.Scene {
 
   backToMenu(scene: Demo) {
     scene.mode = "menu";
-    scene.livesText?.setVisible(false);
-    scene.text?.setVisible(true);
-    scene.button?.setVisible(true);
     scene.snore?.stop();
     this.badguys?.setVisible(false);
     this.mias?.setVisible(false);
-    this.explosions.setVisible(false);
     this.sleepingJackImage.setVisible(true);
     this.jack?.disableBody(true, true);
     this.big_zs.setVisible(false);
@@ -401,8 +406,12 @@ export default class Demo extends Phaser.Scene {
           .setPosition(this.GAME_WIDTH / 2 + 250, this.GAME_HEIGHT - 250);
         this.angry_jack.setVisible(false);
         this.angry_jack
-          .setPosition(this.GAME_WIDTH / 2 + 370, this.GAME_HEIGHT - 55)
+          .setPosition(this.GAME_WIDTH - 30, this.GAME_HEIGHT - 50)
           .setScale(0.6);
+        scene.livesText?.setVisible(false);
+        scene.text?.setVisible(true);
+        scene.button?.setVisible(true);
+        this.explosions.setVisible(false);
       },
     });
 
@@ -476,12 +485,9 @@ export default class Demo extends Phaser.Scene {
 
     this.scale.on("resize", this.resize, this);
 
-    const a = this.add.image(
-      this.GAME_WIDTH / 2,
-      this.GAME_HEIGHT / 2,
-      "night_sky"
-    );
-    // a.setScale(2, 2);
+    this.add
+      .image(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, "night_sky")
+      .setDisplaySize(this.GAME_WIDTH, this.GAME_HEIGHT);
 
     this.livesText = this.add.text(10, 10, "", { font: "50px Courier" });
     this.anims.create({
@@ -494,12 +500,14 @@ export default class Demo extends Phaser.Scene {
       frameRate: 20,
       hideOnComplete: true,
     });
-    drawFLoor(this, 800);
-    this.jack = new Jack(this, 800, 500).setScale(0.5).setOrigin(0, 0);
+    drawFLoor(this, this.GAME_WIDTH);
+    this.jack = new Jack(this, this.GAME_WIDTH, 500)
+      .setScale(0.5)
+      .setOrigin(0, 0);
     this.jack.refreshBody();
     this.jack.setPosition(
-      800 - this.jack.body.width - 10,
-      600 - this.jack.body.height - 20
+      this.GAME_WIDTH - this.jack.body.width - 10,
+      this.GAME_HEIGHT - this.jack.body.height - 20
     );
     this.jack.setVisible(false);
     // this.add
@@ -507,29 +515,35 @@ export default class Demo extends Phaser.Scene {
     //   .setDisplaySize(50, 50);
     this.initialMenu(this);
     this.angry_jack = this.add
-      .image(this.GAME_WIDTH / 2 + 370, this.GAME_HEIGHT - 55, "angry_jack")
+      .image(this.GAME_WIDTH - 30, this.GAME_HEIGHT - 50, "angry_jack")
       .setScale(0.6);
-    // .setOrigin(0, 0);
-    this.angry_jack.setVisible(true);
+    this.angry_jack.setVisible(false);
     this.jackScale = this.jack.body.width / this.sleepingJackImage.width;
     const sc = this;
     this.data.set("lives", 3);
     this.physics.world.setBounds(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
-    const gunPosition = { x: 700, y: 500 };
+    const gunPosition = { x: this.GAME_WIDTH, y: this.GAME_HEIGHT };
     const bullets = new Bullets(this);
-    this.input.addPointer(5);
+    this.input.addPointer();
     this.input.on("pointerdown", (pointer) => {
       if (sc.mode != "play") {
         return;
       }
-      const angle = Phaser.Math.Angle.BetweenPoints(gunPosition, pointer);
+      const scaleX = this.GAME_WIDTH / this.sizer.width;
+      const scaleY = this.GAME_HEIGHT / this.sizer.height;
+      const pX = pointer.x * scaleX;
+      const pY = pointer.y * scaleY;
+      const angle = Phaser.Math.Angle.BetweenPoints(gunPosition, {
+        x: pX,
+        y: pY,
+      });
       bullets.fireBullet(gunPosition.x, gunPosition.y, angle);
     });
 
     const floor = this.physics.add.staticGroup();
     // todo: make more pprotie texture
     floor
-      .create(800 / 2, 600, "floor")
+      .create(this.GAME_WIDTH / 2, this.GAME_HEIGHT, "floor")
       .setScale(2)
       .refreshBody();
 

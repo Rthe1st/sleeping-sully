@@ -17,10 +17,4 @@ export default {
       debugStaticBodyColor: 0xffffff,
     },
   },
-  scale: {
-    width: 800,
-    height: 600,
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-  },
 };
