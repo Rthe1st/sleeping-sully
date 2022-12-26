@@ -629,8 +629,8 @@ export default class Demo extends Phaser.Scene {
       let lives = sc.data.get("lives");
       if (lives > 0) {
         lives -= 1;
-        sc.data.set("lives", lives - 1);
-        sc.livesText?.setText(["Lives: " + sc.data.get("lives")]);
+        sc.data.set("lives", lives);
+        sc.livesText?.setText(`Lives: ${lives}`);
       }
       if (lives == 0) {
         sc.backToMenu(sc);
@@ -646,8 +646,8 @@ export default class Demo extends Phaser.Scene {
       let lives = sc.data.get("lives");
       if (lives > 0) {
         lives -= 1;
-        sc.data.set("lives", lives - 1);
-        sc.livesText?.setText(["Lives: " + sc.data.get("lives")]);
+        sc.data.set("lives", lives);
+        sc.livesText?.setText(`Lives: ${lives}`);
       }
       if (lives == 0) {
         sc.backToMenu(sc);
