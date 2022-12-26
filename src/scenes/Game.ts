@@ -22,8 +22,13 @@ function drawFLoor(scene: Scene, screenWidth: number) {
   graphics.generateTexture("floor", screenWidth, 20);
 }
 
-function addButton(scene: Scene) {
-  const helloButton = scene.add.text(10, 200, "Play");
+function addButton(scene: Demo) {
+  const helloButton = scene.add
+    .text(scene.GAME_WIDTH / 2, scene.GAME_HEIGHT / 2, "Play", {
+      font: "200px Courier",
+      backgroundColor: "#aaaaaa",
+    })
+    .setOrigin(0.5);
   helloButton.setInteractive();
   return helloButton;
 }
@@ -343,8 +348,16 @@ export default class Demo extends Phaser.Scene {
 
   initialMenu(sc: Demo) {
     this.mode = "menu";
-    this.text = this.add.text(10, 10, "", { font: "50px Courier" });
-    this.text.setText(["Sleeping Sully", "Don't let his", "family wake him"]);
+    this.text = this.add
+      .text(this.GAME_WIDTH / 2, 200, "Sleeping Sully", {
+        font: "100px Courier",
+      })
+      .setOrigin(0.5);
+    this.subtext = this.add
+      .text(this.GAME_WIDTH / 2, 320, "Don't let his family wake him", {
+        font: "60px Courier",
+      })
+      .setOrigin(0.5);
     this.button = addButton(this);
     this.button.on("pointerdown", () => {
       this.play();
@@ -408,9 +421,10 @@ export default class Demo extends Phaser.Scene {
         this.angry_jack
           .setPosition(this.GAME_WIDTH - 30, this.GAME_HEIGHT - 50)
           .setScale(0.6);
-        scene.livesText?.setVisible(false);
-        scene.text?.setVisible(true);
-        scene.button?.setVisible(true);
+        this.livesText?.setVisible(false);
+        this.text?.setVisible(true);
+        this.subtext.setVisible(true);
+        this.button?.setVisible(true);
         this.explosions.setVisible(false);
       },
     });
@@ -440,6 +454,7 @@ export default class Demo extends Phaser.Scene {
     // todo: can we move this to match the sprite body?
     // this.big_zs.setVisible(false);
     this.text?.setVisible(false);
+    this.subtext?.setVisible(false);
     this.data.set("lives", 3);
     this.livesText?.setText(["Lives: " + this.data.get("lives")]);
     this.livesText?.setVisible(true);
@@ -489,7 +504,7 @@ export default class Demo extends Phaser.Scene {
       .image(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, "night_sky")
       .setDisplaySize(this.GAME_WIDTH, this.GAME_HEIGHT);
 
-    this.livesText = this.add.text(10, 10, "", { font: "50px Courier" });
+    this.livesText = this.add.text(10, 10, "", { font: "80px Courier" });
     this.anims.create({
       key: "explode",
       frames: this.anims.generateFrameNumbers("explosion_img", {
