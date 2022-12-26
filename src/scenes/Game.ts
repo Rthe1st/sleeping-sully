@@ -436,13 +436,27 @@ export default class Demo extends Phaser.Scene {
       },
     });
 
+    this.gameOverText.setVisible(true);
+
+    this.tweens.add({
+      targets: this.gameOverText,
+      alpha: 1,
+      duration: 1500,
+      ease: "Power2",
+      yoyo: 1,
+      onComplete: () => {
+        this.gameOverText.setVisible(false);
+      },
+    });
+
     this.tweens.addCounter({
       from: 0,
       to: 10,
       duration: 50,
-      repeat: -1,
+      repeat: 3000 / 50 + 50,
       onUpdate: function (tween) {
         scene.angry_jack.setAngle(tween.getValue());
+        scene.gameOverText.setAngle(tween.getValue());
       },
     });
     this.awakeScream.play();
@@ -510,6 +524,15 @@ export default class Demo extends Phaser.Scene {
     this.add
       .image(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, "night_sky")
       .setDisplaySize(this.GAME_WIDTH, this.GAME_HEIGHT);
+
+    this.gameOverText = this.add
+      .text(this.GAME_WIDTH / 2, 200, ["Noooo", "They woke him up!"], {
+        font: "100px Courier",
+        align: "center",
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
+      .setVisible(false);
 
     this.livesText = this.add.text(10, 10, "", { font: "80px Courier" });
     this.anims.create({
