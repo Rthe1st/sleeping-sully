@@ -525,17 +525,13 @@ export default class Demo extends Phaser.Scene {
     const gunPosition = { x: this.GAME_WIDTH, y: this.GAME_HEIGHT };
     const bullets = new Bullets(this);
     this.input.addPointer();
-    this.input.on("pointerdown", (pointer) => {
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       if (sc.mode != "play") {
         return;
       }
-      const scaleX = this.GAME_WIDTH / this.sizer.width;
-      const scaleY = this.GAME_HEIGHT / this.sizer.height;
-      const pX = pointer.x * scaleX;
-      const pY = pointer.y * scaleY;
       const angle = Phaser.Math.Angle.BetweenPoints(gunPosition, {
-        x: pX,
-        y: pY,
+        x: pointer.worldX,
+        y: pointer.worldY,
       });
       bullets.fireBullet(gunPosition.x, gunPosition.y, angle);
     });
