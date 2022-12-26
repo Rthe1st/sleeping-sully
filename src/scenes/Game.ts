@@ -317,6 +317,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("charlotte", "assets/charlotte.png");
     this.load.image("jack", "assets/jack.png");
     this.load.image("night_sky", "assets/night_sky.jpg");
+    this.load.image("angry_jack", "assets/angry_jack.png");
     this.load.image("sleeping_jack", "assets/sleeping_jack.png");
     this.load.image("laura", "assets/laura_medium.png");
     this.load.image("mia", "assets/mia.png");
@@ -327,6 +328,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("sleepy_z", "assets/sleepy_z.png");
     this.load.audio("mia_scream", ["assets/mia_scream.ogg"]);
     this.load.audio("snore", ["assets/snoring.mp3"]);
+    this.load.audio("awake_scream", ["assets/male-scream-fx.mp3"]);
     this.load.spritesheet("explosion_img", "assets/explosion.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -374,6 +376,7 @@ export default class Demo extends Phaser.Scene {
     this.explosions.setVisible(false);
     this.sleepingJackImage.setVisible(true);
     this.jack?.disableBody(true, true);
+    this.big_zs.setVisible(false);
     this.tweens.add({
       targets: this.big_zs,
       x: this.GAME_WIDTH / 2 + 250,
@@ -382,6 +385,37 @@ export default class Demo extends Phaser.Scene {
       ease: "Power2",
     });
 
+    this.angry_jack.setVisible(true);
+
+    this.tweens.add({
+      targets: this.angry_jack,
+      x: this.GAME_WIDTH / 2 + 255,
+      y: this.GAME_HEIGHT - 100,
+      scale: 2.5,
+      duration: 3000,
+      ease: "Power2",
+      completeDelay: 50,
+      onComplete: () => {
+        this.big_zs
+          .setVisible(true)
+          .setPosition(this.GAME_WIDTH / 2 + 250, this.GAME_HEIGHT - 250);
+        this.angry_jack.setVisible(false);
+        this.angry_jack
+          .setPosition(this.GAME_WIDTH / 2 + 370, this.GAME_HEIGHT - 55)
+          .setScale(0.6);
+      },
+    });
+
+    this.tweens.addCounter({
+      from: 0,
+      to: 10,
+      duration: 50,
+      repeat: -1,
+      onUpdate: function (tween) {
+        scene.angry_jack.setAngle(tween.getValue());
+      },
+    });
+    this.awakeScream.play();
     this.tweens.add({
       targets: this.sleepingJackImage,
       x: this.GAME_WIDTH / 2 - 150 - this.sleepingJackImage.width / 2,
@@ -472,6 +506,11 @@ export default class Demo extends Phaser.Scene {
     //   .image(this.jack.x + this.jack.width / 2, this.jack.y - 20, "sleepy_z")
     //   .setDisplaySize(50, 50);
     this.initialMenu(this);
+    this.angry_jack = this.add
+      .image(this.GAME_WIDTH / 2 + 370, this.GAME_HEIGHT - 55, "angry_jack")
+      .setScale(0.6);
+    // .setOrigin(0, 0);
+    this.angry_jack.setVisible(true);
     this.jackScale = this.jack.body.width / this.sleepingJackImage.width;
     const sc = this;
     this.data.set("lives", 3);
@@ -494,6 +533,7 @@ export default class Demo extends Phaser.Scene {
       .setScale(2)
       .refreshBody();
 
+    this.awakeScream = this.sound.add("awake_scream");
     this.music = this.sound.add("mia_scream");
     this.snore = this.sound.add("snore");
 
