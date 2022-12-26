@@ -390,8 +390,15 @@ export default class Demo extends Phaser.Scene {
   backToMenu(scene: Demo) {
     scene.mode = "menu";
     scene.snore?.stop();
-    this.badguys?.setVisible(false);
-    this.mias?.setVisible(false);
+    for (const bullet of this.badguys?.getChildren()) {
+      this.badguys.killAndHide(bullet);
+    }
+    for (const bullet of this.mias?.getChildren()) {
+      this.mias.killAndHide(bullet);
+    }
+    for (const bullet of this.bullets.getChildren()) {
+      this.bullets.killAndHide(bullet);
+    }
     this.sleepingJackImage.setVisible(true);
     this.jack?.disableBody(true, true);
     this.big_zs.setVisible(false);
@@ -538,7 +545,7 @@ export default class Demo extends Phaser.Scene {
     this.data.set("lives", 3);
     this.physics.world.setBounds(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
     const gunPosition = { x: this.GAME_WIDTH, y: this.GAME_HEIGHT };
-    const bullets = new Bullets(this);
+    this.bullets = new Bullets(this);
     this.input.addPointer();
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       if (sc.mode != "play") {
@@ -548,7 +555,7 @@ export default class Demo extends Phaser.Scene {
         x: pointer.worldX,
         y: pointer.worldY,
       });
-      bullets.fireBullet(gunPosition.x, gunPosition.y, angle);
+      this.bullets.fireBullet(gunPosition.x, gunPosition.y, angle);
     });
 
     const floor = this.physics.add.staticGroup();
@@ -580,23 +587,23 @@ export default class Demo extends Phaser.Scene {
 
     this.badguys = new BadGuys(this);
 
-    this.physics.add.overlap(this.badguys, bullets, function (badguy, bullet) {
-      if (!badguy.active || !bullet.active) {
-        return;
+    this.physics.add.overlap(
+      this.badguys,
+      this.bullets,
+      function (badguy, bullet) {
+        if (!badguy.active || !bullet.active) {
+          return;
+        }
+        bullet.disableBody(true, true);
+        badguy.disableBody(true, true);
+        sc.explosions.go(
+          badguy.body.x + badguy.body.radius,
+          badguy.body.y + badguy.body.radius
+        );
       }
-      // badguy.setActive(false);
-      // bullet.setActive(false);
-      bullet.disableBody(true, true);
-      badguy.disableBody(true, true);
-      sc.explosions.go(
-        badguy.body.x + badguy.body.radius,
-        badguy.body.y + badguy.body.radius
-      );
-      // badguy.body.reset(-1000, 0);
-      // bullet.body.reset(-1000, 0);
-    });
+    );
 
-    this.physics.add.overlap(this.mias, bullets, function (mia, bullet) {
+    this.physics.add.overlap(this.mias, this.bullets, function (mia, bullet) {
       if (!mia.active || !bullet.active) {
         return;
       }
