@@ -9,8 +9,8 @@ import Phaser, { Scene } from "phaser";
 
 function drawFLoor(scene: Scene, screenWidth: number) {
   const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
-  graphics.lineStyle(10, 0xffff00, 1.0);
-  graphics.fillStyle(0xffff00, 1.0);
+  graphics.lineStyle(10, 0x000000, 1.0);
+  graphics.fillStyle(0x000000, 1.0);
   graphics.beginPath();
   graphics.moveTo(screenWidth, 0);
   graphics.lineTo(screenWidth, 20);
@@ -297,13 +297,16 @@ export default class Demo extends Phaser.Scene {
   GAME_WIDTH = 800;
   GAME_HEIGHT = 600;
 
-  badguys;
+  badguys?: BadGuys;
   button: Phaser.GameObjects.Text | null;
+  jack?: Jack;
   mode: string = "menu";
   text: Phaser.GameObjects.Text | null;
-  mias;
+  livesText?: Phaser.GameObjects.Text;
+  mias?: Mias;
   music;
-  explosions;
+  explosions: Explosions;
+  snore?: Phaser.Sound.BaseSound;
 
   constructor() {
     super("GameScene");
@@ -313,6 +316,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("annie", "assets/annie.png");
     this.load.image("charlotte", "assets/charlotte.png");
     this.load.image("jack", "assets/jack.png");
+    this.load.image("night_sky", "assets/night_sky.jpg");
     this.load.image("sleeping_jack", "assets/sleeping_jack.png");
     this.load.image("laura", "assets/laura_medium.png");
     this.load.image("mia", "assets/mia.png");
@@ -328,6 +332,96 @@ export default class Demo extends Phaser.Scene {
       frameHeight: 64,
     });
     this.load.audio("explosion_sound", ["assets/explosion.mp3"]);
+  }
+
+  initialMenu(sc: Demo) {
+    this.mode = "menu";
+    this.text = this.add.text(10, 10, "", { font: "50px Courier" });
+    this.text.setText(["Sleeping Sully", "Don't let his", "family wake him"]);
+    this.button = addButton(this);
+    this.button.on("pointerdown", () => {
+      this.play();
+    });
+    this.sleepingJackImage = this.add
+      .image(83, 384, "sleeping_jack")
+      .setScale(1 / 0.5)
+      .setOrigin(0, 0);
+    this.big_zs = this.add
+      .image(this.GAME_WIDTH / 2 + 250, this.GAME_HEIGHT - 250, "sleepy_z")
+      .setDisplaySize(100, 100)
+      .setOrigin(0, 0);
+    this.tweens.add({
+      targets: this.big_zs,
+      // x: this.GAME_WIDTH / 2 + 200,
+      // y: this.GAME_HEIGHT - 150,
+      alpha: 0,
+      duration: 3000,
+      ease: "Liner",
+      repeat: -1,
+      yoyo: true,
+    });
+    //todo" init new jack image that has no physics
+  }
+
+  backToMenu(scene: Demo) {
+    scene.mode = "menu";
+    scene.livesText?.setVisible(false);
+    scene.text?.setVisible(true);
+    scene.button?.setVisible(true);
+    scene.snore?.stop();
+    this.badguys?.setVisible(false);
+    this.mias?.setVisible(false);
+    this.explosions.setVisible(false);
+    this.sleepingJackImage.setVisible(true);
+    this.jack?.disableBody(true, true);
+    this.tweens.add({
+      targets: this.big_zs,
+      x: this.GAME_WIDTH / 2 + 250,
+      y: this.GAME_HEIGHT - 250,
+      duration: 3000,
+      ease: "Power2",
+    });
+
+    this.tweens.add({
+      targets: this.sleepingJackImage,
+      x: this.GAME_WIDTH / 2 - 150 - this.sleepingJackImage.width / 2,
+      y: this.GAME_HEIGHT - 150 - this.sleepingJackImage.height / 2,
+      // scale: this.sleepingJackImage.width / this.jack?.body.width,
+      scale: 1 / this.jackScale,
+      duration: 3000,
+      ease: "Power2",
+    });
+  }
+
+  play() {
+    // todo: can we move this to match the sprite body?
+    // this.big_zs.setVisible(false);
+    this.text?.setVisible(false);
+    this.data.set("lives", 3);
+    this.livesText?.setText(["Lives: " + this.data.get("lives")]);
+    this.livesText?.setVisible(true);
+    this.button?.setVisible(false);
+    this.tweens.add({
+      targets: this.big_zs,
+      x: this.jack.x + this.jack.width / 2 - 50,
+      y: this.jack.y - 80,
+      duration: 3000,
+      ease: "Power2",
+    });
+    this.tweens.add({
+      targets: this.sleepingJackImage,
+      x: this.jack.x,
+      y: this.jack.y,
+      // scale: this.jack.body.width / this.sleepingJackImage.width,
+      scale: this.jackScale,
+      duration: 3000,
+      ease: "Power2",
+      onComplete: () => {
+        this.jack.enableBody(true, this.jack.x, this.jack.y, true, true);
+        this.sleepingJackImage.setVisible(false);
+        this.mode = "play";
+      },
+    });
   }
 
   create() {
@@ -348,6 +442,14 @@ export default class Demo extends Phaser.Scene {
 
     this.scale.on("resize", this.resize, this);
 
+    const a = this.add.image(
+      this.GAME_WIDTH / 2,
+      this.GAME_HEIGHT / 2,
+      "night_sky"
+    );
+    // a.setScale(2, 2);
+
+    this.livesText = this.add.text(10, 10, "", { font: "50px Courier" });
     this.anims.create({
       key: "explode",
       frames: this.anims.generateFrameNumbers("explosion_img", {
@@ -356,25 +458,23 @@ export default class Demo extends Phaser.Scene {
         first: 23,
       }),
       frameRate: 20,
+      hideOnComplete: true,
     });
     drawFLoor(this, 800);
-    this.button = addButton(this);
-    const jack = new Jack(this, 800, 500).setScale(0.5).setOrigin(0, 0);
-    jack.refreshBody();
-    jack.setPosition(800 - jack.body.width - 10, 600 - jack.body.height - 20);
-    this.add
-      .image(jack.x + jack.width / 2, jack.y - 20, "sleepy_z")
-      .setDisplaySize(50, 50);
+    this.jack = new Jack(this, 800, 500).setScale(0.5).setOrigin(0, 0);
+    this.jack.refreshBody();
+    this.jack.setPosition(
+      800 - this.jack.body.width - 10,
+      600 - this.jack.body.height - 20
+    );
+    this.jack.setVisible(false);
+    // this.add
+    //   .image(this.jack.x + this.jack.width / 2, this.jack.y - 20, "sleepy_z")
+    //   .setDisplaySize(50, 50);
+    this.initialMenu(this);
+    this.jackScale = this.jack.body.width / this.sleepingJackImage.width;
     const sc = this;
-    this.text = this.add.text(10, 10, "", { font: "50px Courier" });
-    this.text.setText(["Sleepy Sully", "Don't let his", "family wake him"]);
     this.data.set("lives", 3);
-    this.button.on("pointerdown", () => {
-      sc.data.set("lives", 3);
-      sc.text.setText(["Lives: " + sc.data.get("lives")]);
-      this.mode = "play";
-      this.button?.setVisible(false);
-    });
     this.physics.world.setBounds(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
     const gunPosition = { x: 700, y: 500 };
     const bullets = new Bullets(this);
@@ -395,9 +495,9 @@ export default class Demo extends Phaser.Scene {
       .refreshBody();
 
     this.music = this.sound.add("mia_scream");
-    const snore = this.sound.add("snore");
+    this.snore = this.sound.add("snore");
 
-    snore.on("complete", function (sound) {
+    this.snore.on("complete", function (sound) {
       console.log("complete");
       setTimeout(
         function () {
@@ -408,7 +508,7 @@ export default class Demo extends Phaser.Scene {
       );
     });
 
-    snore.play();
+    this.snore.play();
 
     this.mias = new Mias(this, this.music);
     this.explosions = new Explosions(this);
@@ -448,7 +548,7 @@ export default class Demo extends Phaser.Scene {
     this.physics.add.collider(this.badguys, floor);
     this.physics.add.collider(this.mias, floor);
 
-    this.physics.add.overlap(this.mias, jack, function (jack, mia) {
+    this.physics.add.overlap(this.mias, this.jack, function (jack, mia) {
       if (!mia.active || !jack.active) {
         return;
       }
@@ -458,17 +558,14 @@ export default class Demo extends Phaser.Scene {
       if (lives > 0) {
         lives -= 1;
         sc.data.set("lives", lives - 1);
-        sc.text.setText(["Lives: " + sc.data.get("lives")]);
+        sc.livesText?.setText(["Lives: " + sc.data.get("lives")]);
       }
       if (lives == 0) {
-        sc.mode = "menu";
-        sc.text.setText(["Sleepy Sully", "Don't let his", "family wake him"]);
-        sc.button?.setVisible(true);
-        snore.stop();
+        sc.backToMenu(sc);
       }
     });
 
-    this.physics.add.overlap(this.badguys, jack, function (jack, badguy) {
+    this.physics.add.overlap(this.badguys, this.jack, function (jack, badguy) {
       if (!badguy.active || !jack.active) {
         return;
       }
@@ -478,13 +575,10 @@ export default class Demo extends Phaser.Scene {
       if (lives > 0) {
         lives -= 1;
         sc.data.set("lives", lives - 1);
-        sc.text.setText(["Lives: " + sc.data.get("lives")]);
+        sc.livesText?.setText(["Lives: " + sc.data.get("lives")]);
       }
       if (lives == 0) {
-        sc.mode = "menu";
-        sc.text.setText(["Sleepy Sully", "Don't let his", "family wake him"]);
-        sc.button?.setVisible(true);
-        snore.stop();
+        sc.backToMenu(sc);
       }
     });
   }
