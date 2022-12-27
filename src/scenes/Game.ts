@@ -192,7 +192,7 @@ class Mias extends Phaser.Physics.Arcade.Group {
     this.music = music;
     this.createMultiple([
       {
-        frameQuantity: 1,
+        frameQuantity: 3,
         // texture is really set by the srpite
         key: "mia",
         active: false,
@@ -240,6 +240,9 @@ class BadGuy extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
+    if (this.x > this.scene.GAME_WIDTH) {
+      this.setActive(false);
+    }
   }
 }
 
@@ -279,7 +282,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
 
     this.createMultiple([
       {
-        frameQuantity: 3,
+        frameQuantity: 4,
         // texture is really set by the srpite
         key: "laura",
         active: false,
@@ -287,7 +290,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Laura,
       },
       {
-        frameQuantity: 3,
+        frameQuantity: 4,
         // texture is really set by the srpite
         key: "charlotte",
         active: false,
@@ -295,7 +298,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Charlotte,
       },
       {
-        frameQuantity: 3,
+        frameQuantity: 4,
         // texture is really set by the srpite
         key: "mike",
         active: false,
@@ -303,7 +306,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Mike,
       },
       {
-        frameQuantity: 3,
+        frameQuantity: 4,
         // texture is really set by the srpite
         key: "trisha",
         active: false,
@@ -311,7 +314,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Trisha,
       },
       {
-        frameQuantity: 3,
+        frameQuantity: 4,
         // texture is really set by the srpite
         key: "annie",
         active: false,
@@ -326,8 +329,8 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
 
     if (bullet) {
       // 150 is max radius of any spirts
-      const y = 151 + Math.random() * 400;
-      bullet.attack(-50, this.scene.GAME_HEIGHT - y, Math.random() * 0.5 + 0.2);
+      const y = 151 + Math.random() * 600;
+      bullet.attack(-50, this.scene.GAME_HEIGHT - y, Math.random() * 0.6 + 0.3);
     }
   }
 }
@@ -745,7 +748,7 @@ export default class Demo extends Phaser.Scene {
         console.log("attack!", "diff", this.difficulty);
         this.badguys.attack();
       }
-      if (Math.random() > 0.99) {
+      if (Math.random() * maxDiff < this.difficulty / 2) {
         this.mias.attack();
       }
     }
