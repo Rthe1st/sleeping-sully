@@ -349,6 +349,7 @@ export default class Demo extends Phaser.Scene {
   music;
   explosions: Explosions;
   snore?: Phaser.Sound.BaseSound;
+  nightSky?: Phaser.GameObjects.Image;
 
   constructor() {
     super("GameScene");
@@ -554,7 +555,7 @@ export default class Demo extends Phaser.Scene {
 
     this.scale.on("resize", this.resize, this);
 
-    this.add
+    this.nightSky = this.add
       .image(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, "night_sky")
       .setDisplaySize(this.GAME_WIDTH, this.GAME_HEIGHT);
 
@@ -679,6 +680,16 @@ export default class Demo extends Phaser.Scene {
       if (!mia.active || !jack.active) {
         return;
       }
+      sc.tweens.addCounter({
+        from: 255,
+        to: 0,
+        duration: 100,
+        onUpdate: (tween) => {
+          const value = Math.floor(tween.getValue());
+          sc.nightSky?.setTint(Phaser.Display.Color.GetColor(255, 0, 0));
+        },
+        onComplete: () => sc.nightSky?.clearTint(),
+      });
       mia.disableBody(true, true);
       sc.explosions.go(
         mia.body.x + mia.body.radius,
