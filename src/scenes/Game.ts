@@ -664,14 +664,12 @@ export default class Demo extends Phaser.Scene {
       if (!mia.active || !bullet.active) {
         return;
       }
-      mia.setActive(false);
-      bullet.setActive(false);
+      mia.disableBody(true, true);
+      bullet.disableBody(true, true);
       sc.explosions.go(
         mia.body.x + mia.body.radius,
         mia.body.y + mia.body.radius
       );
-      mia.body.reset(-1000, 0);
-      bullet.body.reset(-1000, 0);
     });
 
     this.physics.add.collider(this.badguys, floor);
@@ -681,8 +679,11 @@ export default class Demo extends Phaser.Scene {
       if (!mia.active || !jack.active) {
         return;
       }
-      mia.setActive(false);
-      mia.body.reset(-1000, -1000);
+      mia.disableBody(true, true);
+      sc.explosions.go(
+        mia.body.x + mia.body.radius,
+        mia.body.y + mia.body.radius
+      );
       let lives = sc.data.get("lives");
       if (lives > 0) {
         lives -= 1;
@@ -698,8 +699,12 @@ export default class Demo extends Phaser.Scene {
       if (!badguy.active || !jack.active) {
         return;
       }
-      badguy.setActive(false);
-      badguy.body.reset(-1000, -1000);
+      badguy.disableBody(true, true);
+      sc.explosions.go(
+        badguy.body.x + badguy.body.radius,
+        badguy.body.y + badguy.body.radius
+      );
+
       let lives = sc.data.get("lives");
       if (lives > 0) {
         lives -= 1;
