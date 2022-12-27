@@ -218,7 +218,7 @@ class BadGuy extends Phaser.Physics.Arcade.Sprite {
     // this.setDisplaySize(50, 50);
   }
 
-  attack(x, y) {
+  attack(x, y, bounce) {
     // this.setOrigin(0.5);
     // this.setDisplaySize(100, 100);
     // this.setSize(100, 100);
@@ -227,7 +227,7 @@ class BadGuy extends Phaser.Physics.Arcade.Sprite {
     // this.refreshBody();
     this.enableBody(true, x, y, true, true);
     // badguy.enableBody();
-    this.setBounce(0.3);
+    this.setBounce(bounce);
     // this.body.reset(x, y);
     // this.body.setCircle(50);
     this.body.setCircle(this.frame.width / 2);
@@ -279,7 +279,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
 
     this.createMultiple([
       {
-        frameQuantity: 1,
+        frameQuantity: 3,
         // texture is really set by the srpite
         key: "laura",
         active: false,
@@ -287,7 +287,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Laura,
       },
       {
-        frameQuantity: 1,
+        frameQuantity: 3,
         // texture is really set by the srpite
         key: "charlotte",
         active: false,
@@ -295,7 +295,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Charlotte,
       },
       {
-        frameQuantity: 1,
+        frameQuantity: 3,
         // texture is really set by the srpite
         key: "mike",
         active: false,
@@ -303,7 +303,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Mike,
       },
       {
-        frameQuantity: 1,
+        frameQuantity: 3,
         // texture is really set by the srpite
         key: "trisha",
         active: false,
@@ -311,7 +311,7 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
         classType: Trisha,
       },
       {
-        frameQuantity: 1,
+        frameQuantity: 3,
         // texture is really set by the srpite
         key: "annie",
         active: false,
@@ -321,11 +321,13 @@ class BadGuys extends Phaser.Physics.Arcade.Group {
     ]);
   }
 
-  attack(x, y) {
+  attack() {
     let bullet = this.getFirstDead(false);
 
     if (bullet) {
-      bullet.attack(x, y);
+      // 150 is max radius of any spirts
+      const y = 151 + Math.random() * 400;
+      bullet.attack(-50, this.scene.GAME_HEIGHT - y, Math.random() * 0.5 + 0.2);
     }
   }
 }
@@ -526,6 +528,7 @@ export default class Demo extends Phaser.Scene {
         this.jack.enableBody(true, this.jack.x, this.jack.y, true, true);
         this.sleepingJackImage.setVisible(false);
         this.mode = "play";
+        this.difficulty = 1000;
       },
     });
   }
@@ -735,10 +738,14 @@ export default class Demo extends Phaser.Scene {
 
   update(time, delta) {
     if (this.mode == "play") {
-      if (Math.random() > 0.95) {
-        this.badguys.attack(-50, 300);
+      this.difficulty += delta;
+      const maxDiff = 120000 * 4;
+      this.difficulty = Math.min(this.difficulty, maxDiff);
+      if (Math.random() * maxDiff < this.difficulty) {
+        console.log("attack!", "diff", this.difficulty);
+        this.badguys.attack();
       }
-      if (Math.random() > 0.98) {
+      if (Math.random() > 0.99) {
         this.mias.attack();
       }
     }
