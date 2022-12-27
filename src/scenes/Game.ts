@@ -112,10 +112,14 @@ class Mia extends Phaser.Physics.Arcade.Sprite {
   }
 
   attack(mode: number) {
-    this.body.reset(0, this.scene.GAME_HEIGHT - this.body.height / 2);
+    this.enableBody(
+      true,
+      -50,
+      this.scene.GAME_HEIGHT - this.body.height / 2 - 20,
+      true,
+      true
+    );
     this.body.setCircle(this.frame.width / 2);
-    this.setActive(true);
-    this.setVisible(true);
     this.setMass(3);
     if (mode == 0) {
       this.setVelocityX(200);
@@ -131,6 +135,9 @@ class Mia extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
+    if (this.x > this.scene.GAME_WIDTH) {
+      this.setActive(false);
+    }
   }
 }
 
@@ -208,6 +215,8 @@ class Mias extends Phaser.Physics.Arcade.Group {
       const mode = Math.floor(Math.random() * 3);
       this.music.play();
       mia.attack(mode);
+    } else {
+      console.log("no more mias");
     }
   }
 }
