@@ -484,7 +484,7 @@ export default class Demo extends Phaser.Scene {
 
     this.tweens.addCounter({
       from: 0,
-      to: 10,
+      to: 2,
       duration: 50,
       repeat: 3000 / 50 + 50,
       onUpdate: function (tween) {
@@ -683,10 +683,10 @@ export default class Demo extends Phaser.Scene {
       sc.tweens.addCounter({
         from: 255,
         to: 0,
-        duration: 100,
+        duration: 500,
         onUpdate: (tween) => {
           const value = Math.floor(tween.getValue());
-          sc.nightSky?.setTint(Phaser.Display.Color.GetColor(255, 0, 0));
+          sc.nightSky?.setTint(Phaser.Display.Color.GetColor(value, 0, 0));
         },
         onComplete: () => sc.nightSky?.clearTint(),
       });
@@ -715,7 +715,16 @@ export default class Demo extends Phaser.Scene {
         badguy.body.x + badguy.body.radius,
         badguy.body.y + badguy.body.radius
       );
-
+      sc.tweens.addCounter({
+        from: 255,
+        to: 0,
+        duration: 500,
+        onUpdate: (tween) => {
+          const value = Math.floor(tween.getValue());
+          sc.nightSky?.setTint(Phaser.Display.Color.GetColor(value, 0, 0));
+        },
+        onComplete: () => sc.nightSky?.clearTint(),
+      });
       let lives = sc.data.get("lives");
       if (lives > 0) {
         lives -= 1;
@@ -761,10 +770,9 @@ export default class Demo extends Phaser.Scene {
       const maxDiff = 120000 * 4;
       this.difficulty = Math.min(this.difficulty, maxDiff);
       if (Math.random() * maxDiff < this.difficulty) {
-        console.log("attack!", "diff", this.difficulty);
         this.badguys.attack();
       }
-      if (Math.random() * maxDiff < this.difficulty / 2) {
+      if (Math.random() * maxDiff < this.difficulty / 4) {
         this.mias.attack();
       }
     }
