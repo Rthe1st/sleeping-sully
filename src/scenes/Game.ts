@@ -215,12 +215,21 @@ class Mias extends Phaser.Physics.Arcade.Group {
 class BadGuy extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, texture) {
     super(scene, x, y, texture);
+    // this.setDisplaySize(50, 50);
   }
 
   attack(x, y) {
+    // this.setOrigin(0.5);
+    // this.setDisplaySize(100, 100);
+    // this.setSize(100, 100);
+    // this.refreshBody();
+    // this.setBodySize(100, 100);
+    // this.refreshBody();
     this.enableBody(true, x, y, true, true);
     // badguy.enableBody();
+    this.setBounce(0.3);
     // this.body.reset(x, y);
+    // this.body.setCircle(50);
     this.body.setCircle(this.frame.width / 2);
     // this.setActive(true);
     // this.setVisible(true);
@@ -341,16 +350,16 @@ export default class Demo extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("annie", "assets/annie.png");
-    this.load.image("charlotte", "assets/charlotte.png");
+    this.load.image("annie", "assets/annie_small.png");
+    this.load.image("charlotte", "assets/charlotte_small.png");
     this.load.image("jack", "assets/jack.png");
     this.load.image("night_sky", "assets/night_sky.jpg");
     this.load.image("angry_jack", "assets/angry_jack.png");
     this.load.image("sleeping_jack", "assets/sleeping_jack.png");
-    this.load.image("laura", "assets/laura_medium.png");
+    this.load.image("laura", "assets/laura_small.png");
     this.load.image("mia", "assets/mia.png");
-    this.load.image("mike", "assets/mike.png");
-    this.load.image("trisha", "assets/trisha.png");
+    this.load.image("mike", "assets/mike_small.png");
+    this.load.image("trisha", "assets/trisha_small.png");
     this.load.image("bullet", "assets/bullet_small.png");
     this.load.image("open_mouth", "assets/jack_open_mouth.png");
     this.load.image("sleepy_z", "assets/sleepy_z.png");
