@@ -111,15 +111,22 @@ class Mia extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, "mia");
   }
 
-  attack(x, y) {
-    this.body.reset(x, 500);
+  attack(mode: number) {
+    this.body.reset(0, this.scene.GAME_HEIGHT - this.body.height / 2);
     this.body.setCircle(this.frame.width / 2);
     this.setActive(true);
     this.setVisible(true);
     this.setMass(3);
-    // this.setAngularVelocity(100);
-    this.setVelocityX(80);
-    this.setVelocityY(-400);
+    if (mode == 0) {
+      this.setVelocityX(200);
+      this.setVelocityY(-450);
+    } else if (mode === 1) {
+      this.setVelocityX(280);
+      this.setVelocityY(-350);
+    } else {
+      this.setVelocityX(240);
+      this.setVelocityY(-400);
+    }
   }
 
   preUpdate(time, delta) {
@@ -195,11 +202,12 @@ class Mias extends Phaser.Physics.Arcade.Group {
     ]);
   }
 
-  attack(x, y) {
-    let bullet = this.getFirstDead(false);
-    if (bullet) {
+  attack() {
+    let mia = this.getFirstDead(false);
+    if (mia) {
+      const mode = Math.floor(Math.random() * 3);
       this.music.play();
-      bullet.attack(x, y);
+      mia.attack(mode);
     }
   }
 }
@@ -722,7 +730,7 @@ export default class Demo extends Phaser.Scene {
         this.badguys.attack(-50, 300);
       }
       if (Math.random() > 0.98) {
-        this.mias.attack(-50, 0);
+        this.mias.attack();
       }
     }
   }
