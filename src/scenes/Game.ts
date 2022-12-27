@@ -22,6 +22,13 @@ function drawFLoor(scene: Scene, screenWidth: number) {
   graphics.generateTexture("floor", screenWidth, 20);
 }
 
+function drawBullet(scene: Scene) {
+  const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+  graphics.fillStyle(0xffffff);
+  graphics.fillCircleShape(new Phaser.Geom.Circle(10, 10, 10));
+  graphics.generateTexture("draw_bullet", 20, 20);
+}
+
 function addButton(scene: Demo) {
   const helloButton = scene.add
     .text(scene.GAME_WIDTH / 2, scene.GAME_HEIGHT / 2, "Play", {
@@ -37,11 +44,14 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
   scene;
 
   constructor(scene, x, y) {
-    super(scene, x, y, "bullet");
+    super(scene, x, y, "draw_bullet");
     this.scene = scene;
   }
 
   fire(x, y, angle) {
+    this.setOrigin(0.5);
+    this.body.setCircle(this.width / 2);
+    this.refreshBody();
     this.enableBody(true, x, y, true, true);
     this.setBounce(1);
     this.setMass(100);
@@ -68,7 +78,7 @@ class Bullets extends Phaser.Physics.Arcade.Group {
 
     this.createMultiple({
       frameQuantity: 10,
-      key: "bullet",
+      key: "draw_bullet",
       active: false,
       visible: false,
       classType: Bullet,
@@ -333,7 +343,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("mia", "assets/mia.png");
     this.load.image("mike", "assets/mike.png");
     this.load.image("trisha", "assets/trisha.png");
-    this.load.image("bullet", "assets/bullet.png");
+    this.load.image("bullet", "assets/bullet_small.png");
     this.load.image("open_mouth", "assets/jack_open_mouth.png");
     this.load.image("sleepy_z", "assets/sleepy_z.png");
     this.load.audio("mia_scream", ["assets/mia_scream.ogg"]);
@@ -546,6 +556,7 @@ export default class Demo extends Phaser.Scene {
       hideOnComplete: true,
     });
     drawFLoor(this, this.GAME_WIDTH);
+    drawBullet(this);
     this.jack = new Jack(this, this.GAME_WIDTH, 500)
       .setScale(0.5)
       .setOrigin(0, 0);
