@@ -109,9 +109,11 @@ class Jack extends Phaser.Physics.Arcade.Sprite {
 class Mia extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, "mia");
+    this.s = this.scene.sound.add("mia_scream");
   }
 
   attack(mode: number) {
+    this.s.play();
     this.enableBody(
       true,
       -50,
@@ -193,10 +195,8 @@ class Explosions extends Phaser.Physics.Arcade.Group {
 }
 
 class Mias extends Phaser.Physics.Arcade.Group {
-  music;
-  constructor(scene: Scene, music) {
+  constructor(scene: Scene) {
     super(scene.physics.world, scene);
-    this.music = music;
     this.createMultiple([
       {
         frameQuantity: 3,
@@ -213,7 +213,6 @@ class Mias extends Phaser.Physics.Arcade.Group {
     let mia = this.getFirstDead(false);
     if (mia) {
       const mode = Math.floor(Math.random() * 3);
-      this.music.play();
       mia.attack(mode);
     } else {
       console.log("no more mias");
@@ -355,7 +354,6 @@ export default class Demo extends Phaser.Scene {
   text: Phaser.GameObjects.Text | null;
   livesText?: Phaser.GameObjects.Text;
   mias?: Mias;
-  music;
   explosions: Explosions;
   snore?: Phaser.Sound.BaseSound;
   nightSky?: Phaser.GameObjects.Image;
@@ -634,12 +632,11 @@ export default class Demo extends Phaser.Scene {
       .refreshBody();
 
     this.awakeScream = this.sound.add("awake_scream");
-    this.music = this.sound.add("mia_scream");
     this.snore = this.sound.add("snore");
 
     this.snore.play({ loop: true });
 
-    this.mias = new Mias(this, this.music);
+    this.mias = new Mias(this);
     this.explosions = new Explosions(this);
 
     this.badguys = new BadGuys(this);
