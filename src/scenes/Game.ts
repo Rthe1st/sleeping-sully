@@ -351,7 +351,6 @@ export default class Demo extends Phaser.Scene {
   preload() {
     this.load.image("annie", "assets/annie_small.png");
     this.load.image("charlotte", "assets/charlotte_small.png");
-    this.load.image("jack", "assets/jack.png");
     this.load.image("night_sky", "assets/night_sky.jpg");
     this.load.image("angry_jack", "assets/angry_jack.png");
     this.load.image("sleeping_jack", "assets/sleeping_jack.png");
@@ -360,7 +359,6 @@ export default class Demo extends Phaser.Scene {
     this.load.image("mike", "assets/mike_small.png");
     this.load.image("trisha", "assets/trisha_small.png");
     this.load.image("bullet", "assets/bullet_small.png");
-    this.load.image("open_mouth", "assets/jack_open_mouth.png");
     this.load.image("sleepy_z", "assets/sleepy_z.png");
     this.load.audio("mia_scream", ["assets/mia_scream.ogg"]);
     this.load.audio("snore", ["assets/snoring.mp3"]);
