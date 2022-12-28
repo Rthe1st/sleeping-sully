@@ -466,6 +466,7 @@ export default class Demo extends Phaser.Scene {
         this.big_zs
           .setVisible(true)
           .setPosition(this.GAME_WIDTH / 2 + 250, this.GAME_HEIGHT - 250);
+        this.snore?.play();
         this.angry_jack.setVisible(false);
         this.angry_jack
           .setPosition(this.GAME_WIDTH - 30, this.GAME_HEIGHT - 50)
@@ -636,18 +637,7 @@ export default class Demo extends Phaser.Scene {
     this.music = this.sound.add("mia_scream");
     this.snore = this.sound.add("snore");
 
-    this.snore.on("complete", function (sound) {
-      console.log("complete");
-      setTimeout(
-        function () {
-          console.log("replay");
-          sound.play();
-        }.bind(sound),
-        10
-      );
-    });
-
-    this.snore.play();
+    this.snore.play({ loop: true });
 
     this.mias = new Mias(this, this.music);
     this.explosions = new Explosions(this);
