@@ -214,8 +214,6 @@ class Mias extends Phaser.Physics.Arcade.Group {
     if (mia) {
       const mode = Math.floor(Math.random() * 3);
       mia.attack(mode);
-    } else {
-      console.log("no more mias");
     }
   }
 }
@@ -223,24 +221,12 @@ class Mias extends Phaser.Physics.Arcade.Group {
 class BadGuy extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, texture) {
     super(scene, x, y, texture);
-    // this.setDisplaySize(50, 50);
   }
 
   attack(x, y, bounce) {
-    // this.setOrigin(0.5);
-    // this.setDisplaySize(100, 100);
-    // this.setSize(100, 100);
-    // this.refreshBody();
-    // this.setBodySize(100, 100);
-    // this.refreshBody();
     this.enableBody(true, x, y, true, true);
-    // badguy.enableBody();
     this.setBounce(bounce);
-    // this.body.reset(x, y);
-    // this.body.setCircle(50);
     this.body.setCircle(this.frame.width / 2);
-    // this.setActive(true);
-    // this.setVisible(true);
     this.setMass(30);
     this.setAngularVelocity(100);
     this.setVelocityX(200);
@@ -416,15 +402,12 @@ export default class Demo extends Phaser.Scene {
       .setOrigin(0, 0);
     this.tweens.add({
       targets: this.big_zs,
-      // x: this.GAME_WIDTH / 2 + 200,
-      // y: this.GAME_HEIGHT - 150,
       alpha: 0,
       duration: 3000,
       ease: "Liner",
       repeat: -1,
       yoyo: true,
     });
-    //todo" init new jack image that has no physics
   }
 
   backToMenu(scene: Demo) {
@@ -505,7 +488,6 @@ export default class Demo extends Phaser.Scene {
       targets: this.sleepingJackImage,
       x: this.GAME_WIDTH / 2 - 150 - this.sleepingJackImage.width / 2,
       y: this.GAME_HEIGHT - 150 - this.sleepingJackImage.height / 2,
-      // scale: this.sleepingJackImage.width / this.jack?.body.width,
       scale: 1 / this.jackScale,
       duration: 3000,
       ease: "Power2",
@@ -513,8 +495,6 @@ export default class Demo extends Phaser.Scene {
   }
 
   play() {
-    // todo: can we move this to match the sprite body?
-    // this.big_zs.setVisible(false);
     this.text?.setVisible(false);
     this.subtext?.setVisible(false);
     this.data.set("lives", 3);
@@ -532,7 +512,6 @@ export default class Demo extends Phaser.Scene {
       targets: this.sleepingJackImage,
       x: this.jack.x,
       y: this.jack.y,
-      // scale: this.jack.body.width / this.sleepingJackImage.width,
       scale: this.jackScale,
       duration: 3000,
       ease: "Power2",
@@ -598,9 +577,6 @@ export default class Demo extends Phaser.Scene {
       this.GAME_HEIGHT - this.jack.body.height - 20
     );
     this.jack.setVisible(false);
-    // this.add
-    //   .image(this.jack.x + this.jack.width / 2, this.jack.y - 20, "sleepy_z")
-    //   .setDisplaySize(50, 50);
     this.initialMenu(this);
     this.angry_jack = this.add
       .image(this.GAME_WIDTH - 30, this.GAME_HEIGHT - 50, "angry_jack")
