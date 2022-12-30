@@ -358,9 +358,8 @@ export default class Demo extends Phaser.Scene {
     this.load.image("mia", "assets/mia.png");
     this.load.image("mike", "assets/mike_small.png");
     this.load.image("trisha", "assets/trisha_small.png");
-    this.load.image("bullet", "assets/bullet_small.png");
     this.load.image("sleepy_z", "assets/sleepy_z.png");
-    this.load.audio("mia_scream", ["assets/mia_scream.ogg"]);
+    this.load.audio("mia_scream", ["assets/mia_scream.mp3"]);
     this.load.audio("snore", ["assets/snoring.mp3"]);
     this.load.audio("awake_scream", ["assets/male-scream-fx.mp3"]);
     this.load.spritesheet("explosion_img", "assets/explosion.png", {
