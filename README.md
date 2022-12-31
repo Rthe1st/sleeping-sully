@@ -1,27 +1,14 @@
-<h1 align="center">
-  <br>
-  <a href="https://github.com/geocine/phaser3-rollup-typescript#readme"><img src="https://i.imgur.com/6lcIxDs.png" alt="header" width="600"/></a>
-  <br>
-  Phaser 3 TypeScript Starter
-  <br>
-</h1>
+A game made as a secret santa present, deployed using github pages at [sleepingsully.com](https://sleepingsully.com)
 
-This is a [Phaser 3](https://github.com/photonstorm/phaser) starter with [TypeScript](https://www.typescriptlang.org/), [Rollup](https://rollupjs.org) with ⚡️ lightning fast HMR through [Vite](https://vitejs.dev/).
+I used [this](https://github.com/geocine/phaser3-rollup-typescript) for the basic project setup, and most other code is heavily based on different [phaser 3 examples](https://phaser.io/examples).
 
-## Available Commands
+To build and run it, you should only need [Node and NPM installed](https://nodejs.org/en/download/)
 
-| Command | Description |
-|---------|-------------|
-| `yarn install` | Install project dependencies |
-| `yarn dev` | Builds project and open web server, watching for changes |
-| `yarn build` | Builds code bundle with production settings  |
-| `yarn serve` | Run a web server to serve built code bundle |
+Once you have them installed, run these from a command line/terminal prompt:
 
-## Development
+```bash
+npm install --dev
+npm run dev
+```
 
-After cloning the repo, run `yarn install` from your project directory. Then, you can start the local development
-server by running `yarn dev` and navigate to http://localhost:3000.
-
-## Production
-
-After running `yarn build`, the files you need for production will be on the `dist` folder. To test code on your `dist` folder, run `yarn serve` and navigate to http://localhost:5000
+Then go to [localhost:3000]() in a web browser.

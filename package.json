@@ -1,7 +1,7 @@
 {
-  "name": "phaser3-rollup-typescript",
+  "name": "sleeping-sully",
   "version": "1.1.0",
-  "description": "Phaser 3 TypeScript Starter",
+  "description": "Sleeping sully",
   "main": "dist/index.js",
   "scripts": {
     "dev": "vite",
@@ -10,10 +10,7 @@
   },
   "author": "Richard Sommerville",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/geocine/phaser3-rollup-typescript/issues"
-  },
-  "homepage": "https://github.com/geocine/phaser3-rollup-typescript#readme",
+  "homepage": "https://sleepingsully.com",
   "devDependencies": {
     "@types/node": "^17.0.31",
     "@rollup/plugin-alias": "^3.1.9",
